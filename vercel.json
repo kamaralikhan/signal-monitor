@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "functions": {
+    "api/trump.js": { "memory": 128, "maxDuration": 10 },
+    "api/iran.js":  { "memory": 128, "maxDuration": 10 }
+  }
+}

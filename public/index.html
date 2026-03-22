@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SIGNAL — Social Intelligence Monitor</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SIGNAL">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a0a0f;--border:#1e1e2e;
+    --trump:#e8433a;--iran:#22c55e;
+    --text:#e8e8f0;--muted:#555570;
+    --mono:'IBM Plex Mono',monospace;
+    --sans:'IBM Plex Sans',sans-serif;
+    --display:'Syne',sans-serif;
+  }
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.008) 2px,rgba(255,255,255,.008) 4px)}
+
+  header{border-bottom:1px solid var(--border);padding:14px 18px;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+    position:sticky;top:0;background:rgba(10,10,15,.97);backdrop-filter:blur(12px);z-index:100}
+  .logo{font-family:var(--display);font-size:18px;font-weight:800;letter-spacing:.1em}
+  .logo small{display:block;font-size:9px;font-family:var(--mono);color:var(--muted);letter-spacing:.18em;margin-top:2px}
+  .hdr-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .sync{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .livedot{width:6px;height:6px;border-radius:50%;background:var(--iran);
+    box-shadow:0 0 7px var(--iran);animation:blink 2s infinite;display:inline-block;margin-right:4px}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .rbtn{font-family:var(--mono);font-size:10px;background:transparent;
+    border:1px solid var(--border);color:var(--text);padding:5px 12px;
+    cursor:pointer;letter-spacing:.1em;transition:all .2s}
+  .rbtn:hover{border-color:#444;background:rgba(255,255,255,.04)}
+  .rbtn:disabled{opacity:.4;cursor:not-allowed}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 55px)}
+  .col{border-right:1px solid var(--border);display:flex;flex-direction:column}
+  .col:last-child{border-right:none}
+  .col-hdr{padding:14px 16px 10px;border-bottom:1px solid var(--border);
+    position:sticky;top:55px;background:rgba(10,10,15,.98);z-index:50}
+  .col-title{font-family:var(--display);font-size:11px;font-weight:700;
+    letter-spacing:.18em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+  .trump-col .col-title{color:var(--trump)}
+  .iran-col .col-title{color:var(--iran)}
+  .bdg{font-family:var(--mono);font-size:9px;padding:2px 5px;border-radius:2px;letter-spacing:.08em}
+  .trump-col .bdg{background:rgba(232,67,58,.12);color:var(--trump);border:1px solid rgba(232,67,58,.25)}
+  .iran-col .bdg{background:rgba(34,197,94,.1);color:var(--iran);border:1px solid rgba(34,197,94,.2)}
+  .col-sub{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:4px}
+
+  .feed{flex:1;overflow-y:auto}
+  .card{padding:14px 16px;border-bottom:1px solid var(--border);
+    transition:background .15s;animation:up .3s ease both}
+  .card:hover{background:rgba(255,255,255,.018)}
+  @keyframes up{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  .ct{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:7px}
+  .src{font-family:var(--mono);font-size:9px;letter-spacing:.06em}
+  .trump-col .src{color:rgba(232,67,58,.8)}
+  .iran-col .src{color:rgba(34,197,94,.75)}
+  .tm{font-family:var(--mono);font-size:9px;color:var(--muted);white-space:nowrap}
+  .ttl{font-size:12.5px;line-height:1.55;color:#d0d0e8;margin-bottom:4px}
+  .dsc{font-size:11px;line-height:1.6;color:#77778a;font-weight:300}
+  .lnk{font-family:var(--mono);font-size:9px;margin-top:7px;display:inline-block;
+    letter-spacing:.05em;text-decoration:none;opacity:.45;transition:opacity .2s}
+  .lnk:hover{opacity:1}
+  .trump-col .lnk{color:var(--trump)}
+  .iran-col .lnk{color:var(--iran)}
+
+  .state{padding:40px 16px;text-align:center}
+  .spin{width:26px;height:26px;border:2px solid var(--border);border-top-color:currentColor;
+    border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+  .trump-col .spin{color:var(--trump)}
+  .iran-col .spin{color:var(--iran)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .stxt{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;line-height:1.7}
+  .err{color:#ff6060}
+
+  footer{text-align:center;padding:9px;font-family:var(--mono);font-size:9px;
+    color:var(--muted);border-top:1px solid var(--border);letter-spacing:.07em}
+
+  @media(max-width:660px){
+    .grid{grid-template-columns:1fr}
+    .col{border-right:none;border-bottom:1px solid var(--border);min-height:50vh}
+    .col-hdr{top:52px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">SIGNAL <small>SOCIAL INTELLIGENCE MONITOR</small></div>
+  <div class="hdr-r">
+    <span class="sync" id="sync">—</span>
+    <span style="font-family:var(--mono);font-size:10px;color:var(--iran)">
+      <span class="livedot"></span>LIVE
+    </span>
+    <button class="rbtn" id="rbtn" onclick="fetchAll()">↻ REFRESH</button>
+  </div>
+</header>
+
+<div class="grid">
+  <div class="col trump-col">
+    <div class="col-hdr">
+      <div class="col-title">TRUMP <span class="bdg">TRUTH SOCIAL</span></div>
+      <div class="col-sub">Live · trumpstruth.org via /api/trump</div>
+    </div>
+    <div class="feed" id="trump-feed">
+      <div class="state"><div class="spin"></div><div class="stxt">LOADING...</div></div>
+    </div>
+  </div>
+  <div class="col iran-col">
+    <div class="col-hdr">
+      <div class="col-title">IRAN <span class="bdg">MULTI-SOURCE</span></div>
+      <div class="col-sub">Tehran Times · IRNA · Tasnim · IFP via /api/iran</div>
+    </div>
+    <div class="feed" id="iran-feed">
+      <div class="state"><div class="spin"></div><div class="stxt">LOADING...</div></div>
+    </div>
+  </div>
+</div>
+
+<footer>AUTO-REFRESHES EVERY 10 MIN · VERCEL SERVERLESS BACKEND · TRUMPSTRUTH.ORG + IRAN MULTI-SOURCE</footer>
+
+<script>
+function esc(s){
+  return String(s||'')
+    .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+    .replace(/&quot;/g,'"').replace(/&#039;/g,"'")
+    .replace(/<!\[CDATA\[|\]\]>/g,'').replace(/<[^>]+>/g,'').trim();
+}
+
+function timeAgo(str){
+  if(!str) return '';
+  try{
+    const d=new Date(str);
+    if(isNaN(d)) return str;
+    const m=Math.floor((Date.now()-d)/60000);
+    if(m<1) return 'just now';
+    if(m<60) return m+'m ago';
+    const h=Math.floor(m/60);
+    if(h<24) return h+'h ago';
+    return Math.floor(h/24)+'d ago';
+  }catch{return '';}
+}
+
+// Parse RSS XML for Trump feed (returns from /api/trump as raw XML)
+function parseRSS(xml, defaultSource){
+  const doc = new DOMParser().parseFromString(xml,'text/xml');
+  return Array.from(doc.querySelectorAll('item')).slice(0,15).map(item => {
+    const g = tag => esc(item.querySelector(tag)?.textContent||'');
+    const link = item.querySelector('link')?.textContent?.trim()
+      || item.querySelector('link')?.nextSibling?.textContent?.trim()||'';
+    return {
+      title: g('title'),
+      description: g('description').slice(0,250),
+      link,
+      pubDate: g('pubDate')||g('date')||'',
+      source: defaultSource
+    };
+  });
+}
+
+function renderFeed(id, posts){
+  const el = document.getElementById(id);
+  if(!posts||!posts.length){
+    el.innerHTML=`<div class="state"><div class="stxt err">⚠ NO DATA — check Vercel function logs</div></div>`;
+    return;
+  }
+  el.innerHTML = posts.map((p,i)=>`
+    <div class="card" style="animation-delay:${i*.05}s">
+      <div class="ct">
+        <span class="src">${esc(p.source)||'@realDonaldTrump'}</span>
+        <span class="tm">${timeAgo(p.pubDate)}</span>
+      </div>
+      ${p.title?`<div class="ttl">${esc(p.title)}</div>`:''}
+      ${p.description&&p.description!==p.title?`<div class="dsc">${esc(p.description).slice(0,200)}${esc(p.description).length>200?'…':''}</div>`:''}
+      ${p.link?`<a class="lnk" href="${p.link}" target="_blank" rel="noopener">READ FULL ↗</a>`:''}
+    </div>
+  `).join('');
+}
+
+function showLoading(id){
+  document.getElementById(id).innerHTML=
+    `<div class="state"><div class="spin"></div><div class="stxt">FETCHING LIVE DATA...</div></div>`;
+}
+
+function showErr(id, msg){
+  document.getElementById(id).innerHTML=
+    `<div class="state"><div class="stxt err">⚠ ${msg}</div></div>`;
+}
+
+async function fetchAll(){
+  const btn=document.getElementById('rbtn');
+  btn.disabled=true;
+  document.getElementById('sync').textContent='SYNCING...';
+  showLoading('trump-feed');
+  showLoading('iran-feed');
+
+  // Both calls go to same Vercel domain — no CORS issues
+  const [trumpRes, iranRes] = await Promise.allSettled([
+    fetch('/api/trump').then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); }),
+    fetch('/api/iran').then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  ]);
+
+  if(trumpRes.status==='fulfilled'){
+    try{
+      const posts = parseRSS(trumpRes.value, '@realDonaldTrump');
+      renderFeed('trump-feed', posts);
+    }catch(e){ showErr('trump-feed','Parse error: '+e.message); }
+  } else {
+    showErr('trump-feed', trumpRes.reason?.message||'Fetch failed');
+  }
+
+  if(iranRes.status==='fulfilled'){
+    renderFeed('iran-feed', iranRes.value);
+  } else {
+    showErr('iran-feed', iranRes.reason?.message||'Fetch failed');
+  }
+
+  const now=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('sync').textContent='SYNCED '+now;
+  btn.disabled=false;
+}
+
+fetchAll();
+setInterval(fetchAll, 10*60*1000);
+</script>
+</body>
+</html>
